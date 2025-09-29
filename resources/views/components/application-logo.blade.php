@@ -1,0 +1,1 @@
+<img src="{{ asset('images/ceet.png') }}" alt="Logo CEET" class="h-16 w-auto">
