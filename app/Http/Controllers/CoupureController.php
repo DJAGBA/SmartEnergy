@@ -208,4 +208,66 @@ public function terminer(Coupure $coupure)
     return back()->with('success', 'Coupure marquée comme terminée.');
 }
 
+
+
+public function impact()
+{
+    // Fréquence des coupures par zone
+    $frequences = \App\Models\Coupure::with('zone')
+        ->selectRaw('zone_id, COUNT(*) as total')
+        ->groupBy('zone_id')
+        ->get()
+        ->map(function ($item) {
+            return [
+                'zone' => optional($item->zone)->nom,
+                'frequence' => $item->total,
+            ];
+        });
+
+    // Durée moyenne des coupures par zone
+    $durees = \App\Models\Coupure::with('zone')
+        ->selectRaw('zone_id, AVG(CAST(duree_prevue AS INTEGER)) as moyenne')
+        ->groupBy('zone_id')
+        ->get()
+        ->map(function ($item) {
+            return [
+                'zone' => optional($item->zone)->nom,
+                'moyenne' => round($item->moyenne, 2),
+            ];
+        });
+
+    // Satisfaction moyenne par zone
+    $feedbacks = \App\Models\Feedback::with('zone')
+        ->selectRaw('zone_id, AVG(note) as satisfaction')
+        ->groupBy('zone_id')
+        ->get()
+        ->map(function ($item) {
+            return [
+                'zone' => optional($item->zone)->nom,
+                'satisfaction' => round($item->satisfaction, 2),
+            ];
+        });
+
+    // Retours clients individuels
+    $retours = \App\Models\Feedback::with('zone', 'user')
+        ->latest()
+        ->take(10)
+        ->get();
+
+    // Données pour les graphiques
+    $labels = $frequences->pluck('zone')->toArray();
+    $frequenceData = $frequences->pluck('frequence')->toArray();
+    $dureeData = $durees->pluck('moyenne')->toArray();
+
+    return view('coupures.impact', compact(
+        'frequences',
+        'durees',
+        'feedbacks',
+        'retours',
+        'labels',
+        'frequenceData',
+        'dureeData'
+    ));
+}
+
 }

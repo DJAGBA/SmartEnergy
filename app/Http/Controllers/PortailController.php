@@ -4,53 +4,95 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Client;
+use App\Models\Poste;
+use App\Models\Zone;
+use App\Models\Coupure;
+use App\Models\Feedback;
+use App\Models\User;
 
 class PortailController extends Controller
 {
-   public function index()
-{
-    $user = auth()->user();
-    $coupures = \App\Models\Coupure::where('zone_id', $user->zone_id)
-        ->where('date_fin', '>', now())
-        ->orderBy('date_debut')
-        ->get();
+    /**
+     * Affiche le portail client avec les coupures à venir
+     */
+    public function index(): \Illuminate\View\View
+    {
+        $user = Auth::user();
 
-    return view('portail.index', compact('user', 'coupures'));
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $coupures = Coupure::with(['zones', 'postes'])
+            ->orderByDesc('date_debut')
+            ->get();
+
+        return view('portail.index', compact('user', 'coupures'));
+    }
+
+    /**
+     * Recherche de coupures par référence client
+     */
+    public function recherche(Request $request)
+{
+    $client = Client::where('reference', $request->reference)
+        ->with('zone.coupures')
+        ->first();
+
+    if (!$client || !$client->zone) {
+        return back()->with('error', 'Client ou zone introuvable');
+    }
+
+    $coupures = $client->zone->coupures;
+
+    return view('portail.recherche-resultats', compact('client', 'coupures'));
 }
 
-public function search(Request $request)
-{
-    $query = $request->motif;
-    $user = auth()->user();
+    /**
+     * Mise à jour de l'abonnement client
+     */
+    public function updateAbonnement(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $request->validate([
+            'abonnement' => 'required|string|max:255',
+        ]);
 
-    $coupures = \App\Models\Coupure::where('zone_id', $user->zone_id)
-        ->where(function ($q) use ($query) {
-            $q->where('motif', 'like', "%$query%")
-              ->orWhereHas('zone', fn($z) => $z->where('nom', 'like', "%$query%"));
-        })
-        ->get();
+        $user = Auth::user();
 
-    return view('portail.index', compact('user', 'coupures'));
-}
+        if (!$user) {
+            return redirect()->route('login');
+        }
 
-public function updateAbonnement(Request $request)
-{
-    $request->validate(['abonnement' => 'required']);
-    $user = auth()->user();
-    $user->abonnement = $request->abonnement;
-    $user->save();
+        $user->abonnement = $request->abonnement;
+        $user->save();
 
-    return back()->with('success', 'Abonnement mis à jour.');
-}
+        return back()->with('success', 'Abonnement mis à jour.');
+    }
 
-public function storeFeedback(Request $request)
-{
-    $request->validate(['message' => 'required']);
-    \App\Models\Feedback::create([
-        'user_id' => auth()->id(),
-        'message' => $request->message,
-    ]);
+    /**
+     * Enregistrement d’un retour client
+     */
+    public function storeFeedback(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $request->validate([
+            'message' => 'required|string|max:1000',
+        ]);
 
-    return back()->with('success', 'Merci pour votre retour.');
-}
+        Feedback::create([
+            'user_id' => Auth::id(),
+            'message' => $request->message,
+        ]);
+
+        return back()->with('success', 'Merci pour votre retour.');
+    }
+
+    /**
+     * Affiche une coupure spécifique
+     */
+    public function show(int $id): \Illuminate\View\View
+    {
+        $coupure = Coupure::findOrFail($id);
+        return view('portail.coupure', compact('coupure'));
+    }
 }

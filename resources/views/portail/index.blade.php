@@ -142,6 +142,22 @@
             padding: 2.5rem;
             text-align: center;
         }
+        .horizontal-scroll {
+    display: flex;
+    overflow-x: auto;
+    gap: 1.5rem;
+    padding-bottom: 1rem;
+    scroll-behavior: smooth;
+}
+
+.horizontal-scroll > * {
+    flex-shrink: 0;
+    min-width: 280px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    background-color: white;
+}
         
         /* Styles des formulaires et boutons */
         .form-actions {
@@ -251,6 +267,60 @@
             margin-bottom: 1rem;
             font-weight: 600;
         }
+        
+        .hero-about {
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.4); /* Fond noir semi-transparent */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.content {
+    text-align: center;
+    padding: 5rem 1.5rem;
+    max-width: 800px;
+    margin: 0 auto;
+    color: #ffffff; /* Texte par défaut en blanc */
+}
+
+.content h2 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    line-height: 1.3;
+    letter-spacing: 0.5px;
+    color: #f4d27a; /* Titre principal en jaune sable */
+}
+
+.content .subtitle {
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin-bottom: 2rem;
+}
+
+.content h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.content .about-text {
+    font-size: 1rem;
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto;
+}
 
         .footer-contact p,
         .footer-links li {
@@ -342,7 +412,7 @@
         <div class="container">
             <div class="header-content">
                 <a href="/">
-                    <img src="{{ asset('image/logo_ceet.png') }}" alt="Logo CEET" style="height:70px;">
+                    <img src="{{ asset('images/ceet.png') }}" alt="" style="height:50px;">
                 </a>
                 
                 <div class="nav-actions">
@@ -355,51 +425,71 @@
     </header>
 
     <main class="container">
-        <section class="hero-about">
-            <div class="overlay">
-                <div class="content">
-                    <h2>Votre portail client CEET</h2>
-                    <p class="subtitle">Gérez vos services d'électricité en toute simplicité</p>
-                    <h3><i class="fas fa-info-circle"></i> À propos de la CEET</h3>
-                    <p class="about-text">
-                        La Compagnie Énergie Électrique du Togo (CEET) est le principal distributeur d'électricité au Togo. À travers ce portail, elle renforce sa communication avec les clients en leur offrant un accès direct aux informations sur les coupures programmées, les alertes personnalisées et les retours d'expérience.
-                    </p>
-                </div>
-            </div>
-        </section>
+        <section class="hero-about relative bg-cover bg-center bg-no-repeat" style="background-image: url('/images/3.webp');">
+    <div class="overlay absolute inset-0 bg-black bg-opacity-40">
+        <div class="content text-[#f4d27a] text-center py-20 px-6 max-w-4xl mx-auto">
+            <h2 class="text-4xl font-bold mb-4 leading-tight tracking-wide">
+                Votre portail client CEET
+            </h2>
+            <p class="subtitle text-lg mb-8 font-medium">
+                Gérez vos services d'électricité en toute simplicité
+            </p>
+            <h3 class="text-2xl font-semibold mb-4">
+                À propos de la CEET
+            </h3>
+            <p class="about-text text-base leading-relaxed">
+                La Compagnie Énergie Électrique du Togo (CEET) est le principal distributeur d'électricité au Togo.
+                À travers ce portail, elle renforce sa communication avec les clients en leur offrant un accès direct
+                aux informations sur les coupures programmées, les alertes personnalisées et les retours d'expérience.
+            </p>
+        </div>
+    </div>
+</section>
         
-        <section class="section" id="services">
+      <section class="section bg-yellow-50" id="coupures-programmees">
+    <h2 class="section-title">Coupures programmées</h2>
+
+    <div class="horizontal-scroll">
+        @forelse($coupures as $coupure)
+            @php
+                $zoneNom = $coupure->zone->nom ?? 'Zone inconnue';
+                $date = \Carbon\Carbon::parse($coupure->date_debut)->format('d/m/Y');
+                $heureDebut = \Carbon\Carbon::parse($coupure->date_debut)->format('H\h');
+                $heureFin = \Carbon\Carbon::parse($coupure->date_fin)->format('H\h');
+                $duree = \Carbon\Carbon::parse($coupure->date_debut)->diffInMinutes($coupure->date_fin);
+                $motif = ucfirst($coupure->motif);
+            @endphp
+
+            <div>
+                <div class="font-semibold text-base mb-2">{{ $zoneNom }}</div>
+                <div><strong>Date :</strong> {{ $date }}</div>
+                <div><strong>Heure :</strong> {{ $heureDebut }} à {{ $heureFin }}</div>
+                <!-- <div><strong>Durée :</strong> {{ $duree }} min</div> -->
+                <div><strong>Motif :</strong> {{ $motif }}</div>
+            </div>
+        @empty
+            <p class="text-black text-center">Aucune coupure programmée pour le moment.</p>
+        @endforelse
+    </div>
+</section>
+<section class="section" id="services">
             <h2 class="section-title"><i class="fas fa-search"></i> Rechercher une coupure</h2>
             <p>Besoin de vérifier une coupure ? Entrez simplement votre **référence client** ou l’adresse concernée pour obtenir les informations en un clin d’œil.</p>
-
-            <div class="form-grid">
-                <div class="form-group">
-                    <label class="form-label">Référence client</label>
-                    <input type="text" class="form-input" placeholder="Ex: 12345678">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Adresse</label>
-                    <input type="text" class="form-input" placeholder="Ex:Tokoin Gbonvié">
-                </div>
-            </div>
-            <div class="form-actions">
-                <button class="btn"><i class="fas fa-search"></i> Rechercher</button>
-            </div>
-        </section>
-        
-        <section class="section" id="coupures-programmees">
-            <h2 class="section-title"><i class="fas fa-calendar-alt"></i> Coupures programmées</h2>
-            <div class="outage-cards">
-                {{-- Simulation de la boucle Blade pour les coupures --}}
-                @php $coupures = []; @endphp
-                @forelse($coupures as $coupure)
-                    <div class="outage-card">
-                        {{-- Détails de la coupure (à décommenter/adapter si vous utilisez une vraie boucle) --}}
-                    </div>
-                @empty
-                    <p>Aucune coupure programmée pour le moment.</p>
-                @endforelse
-            </div>
+<form method="GET" action="{{ route('coupures.recherche') }}">
+    <div class="form-grid">
+        <div class="form-group">
+            <label class="form-label">Référence client</label>
+            <input type="text" name="reference" class="form-input" placeholder="Ex: 12345678">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Adresse</label>
+            <input type="text" name="adresse" class="form-input" placeholder="Ex: Tokoin Gbonvié">
+        </div>
+    </div>
+    <div class="form-actions">
+        <button type="submit" class="btn"><i class="fas fa-search"></i> Rechercher</button>
+    </div>
+</form>
         </section>
 
         <section class="section" id="alertes">
@@ -527,9 +617,6 @@
                         <a href="https://www.facebook.com/ceettogofficiel" target="_blank" aria-label="Page Facebook de la CEET"><i class="fab fa-facebook-f"></i></a>
                         <a href="https://www.instagram.com/ceettogoofficiel/" target="_blank" aria-label="Compte Instagram de la CEET"><i class="fab fa-instagram"></i></a>
                         <a href="https://www.youtube.com/@CEETTOGOOFFICIEL" target="_blank" aria-label="Chaîne YouTube de la CEET"><i class="fab fa-youtube"></i></a>
-                        <a href="/login" class="login-btn">
-                            <i class="fas fa-arrow-right-to-bracket"></i> Connexion
-                        </a>
                     </div>
                 </div>
             </div>

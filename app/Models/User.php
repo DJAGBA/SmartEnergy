@@ -17,7 +17,7 @@ class User extends Authenticatable
     'name',
     'email',
     'password',
-    'phone_number', // ← ajoute ceci
+    'phone', // ← ajoute ceci
 ];
 
     protected $hidden = [
@@ -47,6 +47,11 @@ class User extends Authenticatable
 public function feedbacks()
 {
     return $this->hasMany(Feedback::class);
+}
+
+public function routeNotificationForTwilio()
+{
+    return $this->phone; // ou phone_number selon ton colonne
 }
 
 }

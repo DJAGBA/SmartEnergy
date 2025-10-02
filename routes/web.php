@@ -100,5 +100,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/abonnement/update', [PortailController::class, 'updateAbonnement'])->name('abonnement.update');
     Route::post('/feedback/store', [PortailController::class, 'storeFeedback'])->name('feedback.store');
 });
+Route::get('/portail/coupure/{id}', [PortailController::class, 'show'])->name('portail.coupure');
+Route::get('/coupures/recherche', [PortailController::class, 'recherche'])->name('coupures.recherche');
 
 require __DIR__.'/auth.php';

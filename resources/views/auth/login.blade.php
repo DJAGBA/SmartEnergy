@@ -6,7 +6,7 @@
 
     <!-- Icône de profil -->
     <div class="flex justify-center mb-6">
-        <i class="fas fa-user-circle text-6xl text-indigo-600"></i>
+        <i class="fas fa-user-circle text-6xl text-orange-500"></i>
     </div>
 
     <!-- Session Status -->
@@ -19,28 +19,33 @@
         <!-- Email Address -->
         <div>
             <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
+            <x-text-input id="email"
+                class="block mt-1 w-full border-orange-300 focus:border-orange-500 focus:ring-orange-500"
+                type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
         <!-- Password -->
         <div class="mt-4">
             <x-input-label for="password" :value="__('Password')" />
-            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="current-password" />
+            <x-text-input id="password"
+                class="block mt-1 w-full border-orange-300 focus:border-orange-500 focus:ring-orange-500"
+                type="password" name="password" required autocomplete="current-password" />
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
         <!-- Remember Me -->
         <div class="block mt-4">
             <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
+                <input id="remember_me" type="checkbox"
+                    class="rounded border-gray-300 text-orange-500 shadow-sm focus:ring-orange-500" name="remember">
                 <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
             </label>
         </div>
 
         <!-- Submit -->
         <div class="flex items-center justify-end mt-4">
-            <x-primary-button class="ms-3 inline-flex items-center gap-2">
+            <x-primary-button class="ms-3 inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded">
                 <i class="fas fa-sign-in-alt"></i>
                 {{ __('Log in') }}
             </x-primary-button>

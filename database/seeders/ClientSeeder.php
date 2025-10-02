@@ -10,13 +10,13 @@ class ClientSeeder extends Seeder
 {
     public function run()
     {
-        // Définir les clients à insérer
+        // Clients fictifs (sans DJAGBA ici)
         $clients = [
-            ['nom' => 'Alice', 'reference' => 'C001', 'telephone' => '702000001', 'email' => 'client1@example.com', 'abonne' => true],
-            ['nom' => 'Bob', 'reference' => 'C002', 'telephone' => '702000002', 'email' => 'client2@example.com', 'abonne' => false],
-            ['nom' => 'Charlie', 'reference' => 'C003', 'telephone' => '702000003', 'email' => 'client3@example.com', 'abonne' => true],
-            ['nom' => 'David', 'reference' => 'C004', 'telephone' => '702000004', 'email' => 'client4@example.com', 'abonne' => false],
-            ['nom' => 'Eve', 'reference' => 'C005', 'telephone' => '702000005', 'email' => 'client5@example.com', 'abonne' => true],
+            ['nom' => 'Alice', 'reference' => 'C001', 'telephone' => '+228702000001', 'email' => 'client1@example.com', 'abonne' => true, 'canal_preferé' => json_encode(['sms'])],
+            ['nom' => 'Bob', 'reference' => 'C002', 'telephone' => '+228702000002', 'email' => 'client2@example.com', 'abonne' => false, 'canal_preferé' => null],
+            ['nom' => 'Charlie', 'reference' => 'C003', 'telephone' => '+228702000003', 'email' => 'client3@example.com', 'abonne' => true, 'canal_preferé' => json_encode(['email'])],
+            ['nom' => 'David', 'reference' => 'C004', 'telephone' => '+228702000004', 'email' => 'client4@example.com', 'abonne' => false, 'canal_preferé' => null],
+            ['nom' => 'Eve', 'reference' => 'C005', 'telephone' => '+228702000005', 'email' => 'client5@example.com', 'abonne' => true, 'canal_preferé' => json_encode(['sms'])],
         ];
 
         // Récupérer tous les postes actifs ou hors service
@@ -32,6 +32,7 @@ class ClientSeeder extends Seeder
                             'telephone' => $client['telephone'],
                             'email' => $client['email'],
                             'abonne' => $client['abonne'],
+                            'canal_preferé' => $client['canal_preferé'],
                             'poste_id' => $poste->id,
                             'agence_id' => $zone->agence_id,
                         ]
@@ -39,5 +40,19 @@ class ClientSeeder extends Seeder
                 }
             }
         }
+
+        // ✅ Insérer DJAGBA une seule fois, avec les deux canaux préférés
+        Client::updateOrCreate(
+            ['reference' => 'C006'],
+            [
+                'nom' => 'DJAGBA',
+                'telephone' => '+22870203410',
+                'email' => 'veroniquedjagba@gmail.com',
+                'abonne' => true,
+                'canal_preferé' => json_encode(['sms', 'email']),
+                'poste_id' => 14, // Poste lié à une coupure
+                'agence_id' => 1,  // Agence valide
+            ]
+        );
     }
 }
