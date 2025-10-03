@@ -180,6 +180,17 @@ Coupure::where('etat', 'planifiee')
         return view('dashboards.technicien', compact('stats'));
     }
 
+
+   if ($user->hasRole('admin')) {
+    $stats = [
+    'utilisateurs' => \App\Models\User::with('roles')->get(),
+];
+
+  return view('dashboards.admin', compact('stats'));
+}
+    $role = $user->getRoleNames()->first(); // Spatie : récupère le rôle principal
+
+
     return view('dashboards.default');
 }
 public function exportCoupuresPdf()

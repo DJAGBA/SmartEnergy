@@ -1,12 +1,37 @@
-<aside class="w-64 bg-white shadow-md">
-    <div class="p-6 border-b">
-        <h1 class="text-xl font-bold text-purple-600">CEET Administrateur</h1>
+<aside class="w-64 bg-yellow-50 shadow-md fixed top-[64px] bottom-0 z-30 overflow-y-auto">
+    <div class="flex flex-col min-h-full">
+
+        <!-- Titre -->
+        <div class="p-6 border-b border-yellow-200 bg-yellow-100">
+            <h1 class="text-xl font-bold text-black">CEET Administrateur</h1>
+        </div>
+
+        <!-- Navigation principale -->
+        <nav class="flex-1 px-6 py-6 space-y-4 text-sm font-medium text-black">
+            <a href="{{ route('dashboard') }}"
+               class="flex items-center gap-3 py-2 {{ request()->routeIs('dashboard') ? 'text-red-600 font-semibold' : 'hover:text-yellow-600' }}">
+                <i class="fas fa-home text-lg {{ request()->routeIs('dashboard') ? 'text-red-600' : 'text-yellow-600' }}"></i>
+                <span>Tableau de bord</span>
+            </a>
+
+            <a href="{{ route('users.index') }}"
+               class="flex items-center gap-3 py-2 {{ request()->routeIs('users.index') ? 'text-red-600 font-semibold' : 'hover:text-yellow-600' }}">
+                <i class="fas fa-users-cog text-lg {{ request()->routeIs('users.index') ? 'text-red-600' : 'text-yellow-600' }}"></i>
+                <span>Utilisateurs</span>
+            </a>
+
+            <a href="{{ route('roles.index') }}"
+               class="flex items-center gap-3 py-2 {{ request()->routeIs('roles.index') ? 'text-red-600 font-semibold' : 'hover:text-yellow-600' }}">
+                <i class="fas fa-user-shield text-lg {{ request()->routeIs('roles.index') ? 'text-red-600' : 'text-yellow-600' }}"></i>
+                <span>Rôles & Permissions</span>
+            </a>
+        </nav>
+
+        <!-- Déconnexion -->
+        <div class="mt-auto border-t border-yellow-200 px-6 py-4 bg-yellow-100">
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
+                @csrf
+            </form>
+        </div>
     </div>
-    <nav class="p-6 space-y-4 text-gray-700">
-        <a href="{{ route('dashboard') }}"><i class="fas fa-home"></i> Tableau de bord</a>
-        <a href="{{ route('users.index') }}"><i class="fas fa-users-cog"></i> Utilisateurs</a>
-        <a href="{{ route('roles.index') }}"><i class="fas fa-user-shield"></i> Rôles & Permissions</a>
-        <a href="{{ route('zones.index') }}"><i class="fas fa-map-marked-alt"></i> Zones</a>
-        <a href="{{ route('postes.index') }}"><i class="fas fa-bolt"></i> Postes</a>
-    </nav>
 </aside>
