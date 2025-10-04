@@ -24,7 +24,7 @@ class PortailController extends Controller
             return redirect()->route('login');
         }
 
-        $coupures = Coupure::with(['zones', 'postes'])
+        $coupures = Coupure::with(['zone', 'postes'])
             ->orderByDesc('date_debut')
             ->get();
 

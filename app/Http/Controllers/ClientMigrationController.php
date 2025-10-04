@@ -25,16 +25,17 @@ class ClientMigrationController extends Controller
         // Récupère tous les clients du poste source
         $clients = Client::where('poste_id', $source_poste_id)->get();
 
-        // Liste des postes actifs disponibles pour la migration
-        $postesActifs = Poste::where('etat', 'actif')
+        // Liste des postes actifs ou en attente disponibles pour la migration
+        $postesCibles = Poste::whereIn('etat', ['actif', 'en_attente'])
                              ->where('id', '!=', $source_poste_id)
+                             ->with('zones')
                              ->get();
 
         // Passe les bonnes variables à la vue
         return view('client.migration', [
             'sourcePoste' => $sourcePoste,
             'clients' => $clients,
-            'postesActifs' => $postesActifs
+            'postesCibles' => $postesCibles
         ]);
     }
 
@@ -48,7 +49,7 @@ class ClientMigrationController extends Controller
         ]);
 
         $sourcePoste = Poste::findOrFail($source_poste_id);
-        $destinationPoste = Poste::findOrFail($request->destination_poste_id);
+        $destinationPoste = Poste::with('zones')->findOrFail($request->destination_poste_id);
 
         // Vérifie que le poste source est hors service
         if ($sourcePoste->etat === 'actif') {
@@ -56,17 +57,25 @@ class ClientMigrationController extends Controller
                              ->with('error', 'Le poste source est encore actif. Migration annulée.');
         }
 
-        // Vérifie que le poste destination est actif
-        if ($destinationPoste->etat !== 'actif') {
+        // Vérifie que le poste destination est actif ou en attente
+        if (!in_array($destinationPoste->etat, ['actif', 'en_attente'])) {
             return redirect()->back()
-                             ->with('error', 'Le poste de destination doit être actif.');
+                             ->with('error', 'Le poste de destination doit être actif ou en attente.');
         }
 
+        // Récupère la première zone du poste destination
+        $zone = $destinationPoste->zones->first();
+
         // Migration des clients
-        $clientsMigrés = Client::where('poste_id', $source_poste_id)
-                               ->update(['poste_id' => $destinationPoste->id]);
+        $clientsMigrés = 0;
+        Client::where('poste_id', $source_poste_id)->get()->each(function ($client) use ($destinationPoste, $zone, &$clientsMigrés) {
+            $client->poste_id = $destinationPoste->id;
+            $client->zone_id = $zone?->id;
+            $client->save();
+            $clientsMigrés++;
+        });
 
         return redirect()->route('postes.index')
-                         ->with('success', $clientsMigrés . ' client(s) migré(s) vers le poste "' . $destinationPoste->nom . '".');
+                         ->with('success', $clientsMigrés . ' client(s) migré(s) vers le poste "' . $destinationPoste->code_poste . '".');
     }
 }

@@ -11,14 +11,25 @@
         <form method="POST" action="{{ route('client.migration.execute', $sourcePoste->id) }}">
             @csrf
 
-            <label for="destination_poste_id" class="block text-sm font-medium text-gray-700 mb-1">Nouveau poste actif</label>
+            <label for="destination_poste_id" class="block text-sm font-medium text-gray-700 mb-1">
+                Choisir le poste de destination
+            </label>
+
             <select name="destination_poste_id" id="destination_poste_id" required class="form-select w-full mb-4">
-                @foreach($postesActifs as $poste)
-                    <option value="{{ $poste->id }}">
-                        {{ $poste->nom }} 
-                        ({{ $poste->zones->pluck('nom')->join(', ') }})
-                    </option>
-                @endforeach
+                <optgroup label="Postes actifs">
+                    @foreach($postesCibles->where('etat', 'actif') as $poste)
+                        <option value="{{ $poste->id }}">
+                            {{ $poste->nom }} ({{ $poste->zones->pluck('nom')->join(', ') }})
+                        </option>
+                    @endforeach
+                </optgroup>
+                <optgroup label="Postes en attente">
+                    @foreach($postesCibles->where('etat', 'en_attente') as $poste)
+                        <option value="{{ $poste->id }}">
+                            {{ $poste->nom }} ({{ $poste->zones->pluck('nom')->join(', ') }})
+                        </option>
+                    @endforeach
+                </optgroup>
             </select>
 
             <button type="submit"
@@ -31,9 +42,11 @@
     <div class="bg-white shadow rounded-lg p-6">
         <h3 class="text-lg font-medium text-gray-800 mb-4">Liste des clients à migrer</h3>
         <ul class="list-disc pl-5 text-gray-700">
-            @foreach($clients as $client)
+            @forelse($clients as $client)
                 <li>{{ $client->nom }} (ID: {{ $client->id }})</li>
-            @endforeach
+            @empty
+                <li>Aucun client à migrer.</li>
+            @endforelse
         </ul>
     </div>
 </div>

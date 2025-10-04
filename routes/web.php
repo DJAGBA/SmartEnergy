@@ -20,6 +20,7 @@ use App\Http\Controllers\GestionnaireController;
 use App\Http\Controllers\PortailController;
 
 
+
 Route::get('/', function () {
     return redirect()->route('login');
 });
@@ -102,5 +103,7 @@ Route::middleware(['auth'])->group(function () {
 });
 Route::get('/portail/coupure/{id}', [PortailController::class, 'show'])->name('portail.coupure');
 Route::get('/coupures/recherche', [PortailController::class, 'recherche'])->name('coupures.recherche');
+
+
 
 require __DIR__.'/auth.php';

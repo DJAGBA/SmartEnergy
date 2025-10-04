@@ -13,7 +13,7 @@ class HistoriqueController extends Controller
     public function index()
     {
         // Pour la vue WEB : pagination
-        $postes = Poste::with('zone.agence')
+        $postes = Poste::with('zones.agence') // ✅ CORRECTION ICI
                        ->orderBy('created_at', 'desc')
                        ->paginate(10);
 
@@ -28,9 +28,10 @@ class HistoriqueController extends Controller
     public function exportPdf()
     {
         // Pour le PDF : TOUTES les données, SANS pagination !
-        $postes = Poste::with('zone.agence')
+        $postes = Poste::with('zones.agence') // ✅ CORRECTION ICI
                        ->orderBy('created_at', 'desc')
                        ->get(); 
+
         $pdf = Pdf::loadView('historique.pdf', compact('postes'));
         return $pdf->download('historique_postes.pdf');
     }

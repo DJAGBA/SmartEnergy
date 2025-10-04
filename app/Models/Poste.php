@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -17,7 +16,7 @@ class Poste extends Model
     ];
 
     // Relation many-to-many avec les zones
-    public function zone()
+    public function zones()
     {
         return $this->belongsToMany(Zone::class, 'poste_zone');
     }
@@ -34,18 +33,13 @@ class Poste extends Model
         return $this->belongsToMany(Coupure::class, 'coupure_poste');
     }
 
-    // Récupérer la première zone
+    // Accessor : récupérer la première zone
     public function getFirstZoneAttribute()
-{
-    return $this->zone->first(); // <- utilise le nom exact de la relation
-}
+    {
+        return $this->zones->first();
+    }
 
-public function zones()
-{
-    return $this->zone();
-}
-
-    // Récupérer l’agence via la première zone
+    // Accessor : récupérer l’agence via la première zone
     public function getAgenceAttribute()
     {
         return $this->first_zone?->agence;

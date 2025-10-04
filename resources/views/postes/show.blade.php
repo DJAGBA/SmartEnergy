@@ -10,8 +10,8 @@
 <div class="max-w-4xl mx-auto py-10 px-4 sm:px-6 lg:px-8 bg-white rounded shadow">
     <div class="space-y-4 text-gray-800 text-sm">
         <div><strong>Code :</strong> {{ $poste->code_poste ?? '—' }}</div>
-        <div><strong>Zone :</strong> {{ $poste->zone?->first()?->nom ?? '—' }}</div>
-        <div><strong>Agence :</strong> {{ $poste->zone?->first()?->agence?->nom ?? '—' }}</div>
+        <div><strong>Zone :</strong> {{ $poste->zones->first()?->nom ?? '—' }}</div>
+        <div><strong>Agence :</strong> {{ $poste->zones->first()?->agence?->nom ?? '—' }}</div>
         <div><strong>État :</strong> {{ $poste->etat ?? '—' }}</div>
 
         @if($poste->clients && $poste->clients->count())
