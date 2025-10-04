@@ -37,7 +37,7 @@
         {{-- Postes liés à la zone --}}
         <div id="postes-container" class="hidden">
             <label class="block font-semibold text-gray-700 mb-2">Postes concernés</label>
-            <div id="postes-list" class="space-y-2"></div>
+            <div id="postes-list" class="space-y-4"></div>
         </div>
 
         {{-- Motif --}}
@@ -86,18 +86,43 @@ document.getElementById('zone_id').addEventListener('change', function () {
                 list.innerHTML = '<p class="text-gray-500">Aucun poste lié à cette zone.</p>';
             } else {
                 postes.forEach(poste => {
+                    const wrapper = document.createElement('div');
+                    wrapper.classList.add('bg-gray-50', 'p-3', 'rounded', 'border', 'border-gray-200');
+
+                    const posteLabel = document.createElement('label');
+                    posteLabel.classList.add('block', 'font-semibold', 'text-gray-700');
+                    posteLabel.textContent = poste.code_poste;
+
                     const checkbox = document.createElement('input');
                     checkbox.type = 'checkbox';
                     checkbox.name = 'postes[]';
                     checkbox.value = poste.id;
                     checkbox.classList.add('mr-2');
 
-                    const label = document.createElement('label');
-                    label.classList.add('block', 'text-gray-700');
-                    label.appendChild(checkbox);
-                    label.appendChild(document.createTextNode(poste.code_poste));
+                    const signalerCheckbox = document.createElement('input');
+                    signalerCheckbox.type = 'checkbox';
+                    signalerCheckbox.name = `signaler[${poste.id}]`;
+                    signalerCheckbox.value = 1;
+                    signalerCheckbox.classList.add('ml-4', 'form-checkbox', 'text-red-600');
 
-                    list.appendChild(label);
+                    const signalerLabel = document.createElement('span');
+                    signalerLabel.textContent = 'Signaler comme problématique';
+                    signalerLabel.classList.add('ml-2', 'text-sm', 'text-red-700');
+
+                    const messageInput = document.createElement('textarea');
+                    messageInput.name = `message[${poste.id}]`;
+                    messageInput.rows = 2;
+                    messageInput.placeholder = 'Message de signalement...';
+                    messageInput.classList.add('form-textarea', 'mt-2', 'w-full');
+
+                    wrapper.appendChild(posteLabel);
+                    wrapper.appendChild(checkbox);
+                    wrapper.appendChild(document.createTextNode('Inclure dans la coupure'));
+                    wrapper.appendChild(signalerCheckbox);
+                    wrapper.appendChild(signalerLabel);
+                    wrapper.appendChild(messageInput);
+
+                    list.appendChild(wrapper);
                 });
             }
             container.classList.remove('hidden');

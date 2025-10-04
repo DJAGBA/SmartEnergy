@@ -18,6 +18,7 @@ use App\Http\Controllers\UserNotificationController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\GestionnaireController;
 use App\Http\Controllers\PortailController;
+use App\Http\Controllers\SignalementController;
 
 
 
@@ -104,6 +105,8 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/portail/coupure/{id}', [PortailController::class, 'show'])->name('portail.coupure');
 Route::get('/coupures/recherche', [PortailController::class, 'recherche'])->name('coupures.recherche');
 
-
+Route::post('/signalement', [SignalementController::class, 'store'])->name('signalement.store');
+Route::get('/technicien/signalements', [DashboardController::class, 'signalements'])->name('technicien.signalements');
+Route::get('/notifications/hors-service', [DashboardController::class, 'envoyerNotificationsPostesHorsService']);
 
 require __DIR__.'/auth.php';

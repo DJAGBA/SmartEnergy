@@ -31,6 +31,7 @@ class CoupureController extends Controller
         $zones = Zone::all();
         return view('coupures.create', compact('zones'));
     }
+    
 
     // Enregistre une nouvelle coupure
     public function store(Request $request)
