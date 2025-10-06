@@ -13,6 +13,10 @@ use Illuminate\Support\Facades\Notification;
 use App\Notifications\CoupurePlanifieeNotification;
 use App\Models\Poste;
 use App\Models\Agence;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+
+
 
 
 
@@ -35,21 +39,21 @@ class CoupureController extends Controller
 
     // Enregistre une nouvelle coupure
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'date_debut' => 'required|date|after_or_equal:today',
-            'date_fin' => 'required|date|after:date_debut',
-            'motif' => 'required|string',
-            'priorite' => 'required|in:faible,moyenne,élevée',
-            'zone_id' => 'required|exists:zones,id',
-        ]);
+{
+    $validated = $request->validate([
+        'date_debut' => 'required|date|after_or_equal:today',
+        'date_fin' => 'required|date|after:date_debut',
+        'motif' => 'required|string',
+        'priorite' => 'required|in:faible,moyenne,élevée',
+        'zone_id' => 'required|exists:zones,id',
+    ]);
 
-        $debut = Carbon::parse($validated['date_debut']);
-        $fin = Carbon::parse($validated['date_fin']);
-        $duree = $debut->diffInMinutes($fin);
-        $gestionnaireId = auth()->id();
+    $debut = Carbon::parse($validated['date_debut']);
+    $fin = Carbon::parse($validated['date_fin']);
+    $duree = $debut->diffInMinutes($fin);
+    $gestionnaireId = auth()->id();
 
-       $coupure = Coupure::create([
+   $coupure = Coupure::create([
     'date_debut' => $debut,
     'date_fin' => $fin,
     'duree_prevue' => $duree,
@@ -58,13 +62,23 @@ class CoupureController extends Controller
     'zone_id' => $validated['zone_id'],
     'etat' => 'planifiee',
     'gestionnaire_id' => $gestionnaireId,
-    
 ]);
-Notification::send(auth()->user(), new CoupurePlanifieeNotification($coupure));
 
+// Notification Laravel vers le gestionnaire
+// Notification::send(auth()->user(), new CoupurePlanifieeNotification($coupure));
 
-        return redirect()->route('coupures.index')->with('success', 'Coupure planifiée avec succès.');
-    }
+// 🔽 Ajoute ce bloc juste ici
+$client = \App\Models\Client::where('email', 'veroniquedjagba@gmail.com')->first();
+
+if ($client && filter_var($client->email, FILTER_VALIDATE_EMAIL)) {
+    \Mail::send('emails.coupure', ['coupure' => $coupure, 'client' => $client], function ($message) use ($client) {
+        $message->to($client->email)
+                ->subject('📢 Coupure planifiée – CEET');
+    });
+}
+
+    return redirect()->route('coupures.index')->with('success', 'Coupure planifiée avec succès.');
+}
 
     // Affiche le formulaire d'édition
     public function edit(string $id)
@@ -220,7 +234,38 @@ public function terminer(Coupure $coupure)
     return back()->with('success', 'Coupure marquée comme terminée.');
 }
 
+public function notifier(Coupure $coupure)
+{
+    try {
+        // Récupérer tous les clients de la zone concernée
+        $clients = \App\Models\Client::where('zone_id', $coupure->zone_id)->get();
 
+        foreach ($clients as $client) {
+            Log::info('Notification Laravel vers : ' . $client->email);
+
+            if (filter_var($client->email, FILTER_VALIDATE_EMAIL)) {
+                // ✅ Notification Laravel
+                $client->notify(new CoupurePlanifieeNotification($coupure));
+                Log::info('Notification email générée pour : ' . $client->email);
+
+                // ✅ Envoi réel via Mail::send
+                Mail::send('emails.coupure', ['coupure' => $coupure, 'client' => $client], function ($message) use ($client) {
+                    $message->to($client->email)
+                            ->subject('📢 Coupure planifiée – CEET');
+                });
+
+                Log::info('Envoi réel vers : ' . $client->email);
+            } else {
+                Log::warning('Email invalide ignoré : ' . $client->email);
+            }
+        }
+
+        return back()->with('success', 'Notifications Laravel et emails envoyés à tous les clients de la zone.');
+    } catch (\Exception $e) {
+        Log::error('Erreur lors de l’envoi : ' . $e->getMessage());
+        return back()->with('error', 'Échec de l’envoi : ' . $e->getMessage());
+    }
+}
 
 public function impact()
 {

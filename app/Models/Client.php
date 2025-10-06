@@ -37,7 +37,7 @@ class Client extends Model
     }
 
     // ✅ Méthode requise pour Twilio
-    public function routeNotificationForTwilio()
+    public function notificationsPersonnelles()
     {
         return $this->telephone; // doit contenir un numéro au format international
     }

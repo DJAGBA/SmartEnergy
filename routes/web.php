@@ -109,4 +109,6 @@ Route::post('/signalement', [SignalementController::class, 'store'])->name('sign
 Route::get('/technicien/signalements', [DashboardController::class, 'signalements'])->name('technicien.signalements');
 Route::get('/notifications/hors-service', [DashboardController::class, 'envoyerNotificationsPostesHorsService']);
 
+Route::post('/coupures/{coupure}/notifier', [CoupureController::class, 'notifier'])->name('coupures.notifier');
+
 require __DIR__.'/auth.php';

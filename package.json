@@ -19,6 +19,7 @@
         "vite": "^7.0.4"
     },
     "dependencies": {
-        "@fortawesome/fontawesome-free": "^7.0.1"
+        "@fortawesome/fontawesome-free": "^7.0.1",
+        "maildev": "^2.2.1"
     }
 }

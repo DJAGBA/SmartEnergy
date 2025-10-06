@@ -2,6 +2,13 @@
 
 @section('content')
 <div class="max-w-6xl mx-auto py-10">
+    {{-- Message de confirmation --}}
+    @if(session('success'))
+        <div class="bg-green-100 text-green-800 p-3 rounded mb-4">
+            ✅ {{ session('success') }}
+        </div>
+    @endif
+
     {{-- Titre + date + bouton --}}
     <div class="flex justify-between items-center mb-6">
         <div>
@@ -65,20 +72,29 @@
                             <span class="text-gray-500">Terminée</span>
                         @endif
                     </td>
-                   <td class="px-4 py-2 flex gap-4 items-center">
-    <a href="{{ route('coupures.edit', $coupure->id) }}" class="text-blue-600 hover:text-blue-800 flex items-center gap-1">
-        <i class="fas fa-edit"></i>
-        <span>Modifier</span>
-    </a>
-    <form action="{{ route('coupures.destroy', $coupure->id) }}" method="POST" onsubmit="return confirm('Supprimer cette coupure ?')">
-        @csrf
-        @method('DELETE')
-        <button type="submit" class="text-red-600 hover:text-red-800 flex items-center gap-1">
-            <i class="fas fa-trash-alt"></i>
-            <span>Supprimer</span>
-        </button>
-    </form>
-</td>
+                    <td class="px-4 py-2 flex gap-4 items-center">
+                        <a href="{{ route('coupures.edit', $coupure->id) }}" class="text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                            <i class="fas fa-edit"></i>
+                            <span>Modifier</span>
+                        </a>
+
+                        <form action="{{ route('coupures.destroy', $coupure->id) }}" method="POST" onsubmit="return confirm('Supprimer cette coupure ?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-red-600 hover:text-red-800 flex items-center gap-1">
+                                <i class="fas fa-trash-alt"></i>
+                                <span>Supprimer</span>
+                            </button>
+                        </form>
+
+                        <form method="POST" action="{{ route('coupures.notifier', $coupure->id) }}">
+                            @csrf
+                            <button type="submit" class="text-green-600 hover:text-green-800 flex items-center gap-1">
+                                <i class="fas fa-paper-plane"></i>
+                                <span>Publier</span>
+                            </button>
+                        </form>
+                    </td>
                 </tr>
             @empty
                 <tr>
