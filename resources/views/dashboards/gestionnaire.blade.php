@@ -2,7 +2,11 @@
 @section('content')
 <div class="py-12">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-
+@if(session('success'))
+    <div class="bg-green-100 text-green-800 p-4 rounded mb-4">
+        {{ session('success') }}
+    </div>
+@endif
         {{-- Vue synthétique des coupures --}}
         <div class="bg-white shadow-sm sm:rounded-lg">
             <div class="p-6 text-gray-900">

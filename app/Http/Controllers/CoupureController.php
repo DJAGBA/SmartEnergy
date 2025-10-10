@@ -260,7 +260,7 @@ public function notifier(Coupure $coupure)
             }
         }
 
-        return back()->with('success', 'Notifications Laravel et emails envoyés à tous les clients de la zone.');
+       return back()->with('success', 'Notification envoyée à tous les clients de la zone.');
     } catch (\Exception $e) {
         Log::error('Erreur lors de l’envoi : ' . $e->getMessage());
         return back()->with('error', 'Échec de l’envoi : ' . $e->getMessage());
@@ -326,5 +326,17 @@ public function impact()
         'dureeData'
     ));
 }
+
+public function publicWeb()
+{
+    $coupures = Coupure::where('etat', 'planifiee')
+        ->where('date_debut', '>=', Carbon::today())
+        ->with('zone')
+        ->orderBy('date_debut', 'asc')
+        ->get();
+
+    return view('portail.coupures', compact('coupures'));
+}
+
 
 }

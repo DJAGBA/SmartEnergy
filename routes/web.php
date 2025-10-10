@@ -110,5 +110,5 @@ Route::get('/technicien/signalements', [DashboardController::class, 'signalement
 Route::get('/notifications/hors-service', [DashboardController::class, 'envoyerNotificationsPostesHorsService']);
 
 Route::post('/coupures/{coupure}/notifier', [CoupureController::class, 'notifier'])->name('coupures.notifier');
-
+Route::get('/coupures-programmees', [CoupureController::class, 'publicWeb'])->name('portail.coupures');
 require __DIR__.'/auth.php';

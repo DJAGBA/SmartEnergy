@@ -25,6 +25,7 @@
                 <th>Zone</th>
                 <th>Motif</th>
                 <th>Priorité</th>
+                <th>Gestionnaire</th>
                 
             </tr>
         </thead>

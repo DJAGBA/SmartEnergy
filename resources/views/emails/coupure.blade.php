@@ -14,7 +14,7 @@
             Nous vous informons qu'une coupure est programmée dans votre zone <strong>{{ optional($coupure->zone)->nom }}</strong>,
             du <strong>{{ \Carbon\Carbon::parse($coupure->date_debut)->format('d/m/Y à H:i') }}</strong>
             au <strong>{{ \Carbon\Carbon::parse($coupure->date_fin)->format('d/m/Y à H:i') }}</strong>.
-            Cette interruption est due à <strong>{{ $coupure->motif }}</strong> et a été classée comme priorité <strong>{{ ucfirst($coupure->priorite) }}</strong>.
+            Cette interruption est due à <strong>{{ $coupure->motif }}</strong>.
         </p>
 
         <p>
@@ -23,7 +23,7 @@
 
         <p style="margin-top: 20px;">
             Cordialement,<br>
-            <strong>CEET Notification System</strong>
+            <strong>Le service clientèle CEET</strong>
         </p>
     </div>
 </body>
