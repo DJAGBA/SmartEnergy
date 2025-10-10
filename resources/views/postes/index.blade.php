@@ -17,15 +17,17 @@
     @endif
 
     {{-- Filtre --}}
-    <form method="GET" action="{{ route('postes.index') }}" class="mb-6 flex items-center gap-4">
-        <label for="etat" class="text-sm text-gray-700">Filtrer par état :</label>
-        <select name="etat" id="etat" onchange="this.form.submit()" class="border-gray-300 rounded-md shadow-sm">
-            <option value="">Tous</option>
-            <option value="actif" {{ request('etat') === 'actif' ? 'selected' : '' }}>✅ Actif</option>
-            <option value="hors_service" {{ request('etat') === 'hors_service' ? 'selected' : '' }}>⚠️ Hors service</option>
-            <option value="en_attente" {{ request('etat') === 'en_attente' ? 'selected' : '' }}>⏳ En attente</option>
-        </select>
-    </form>
+   <form method="GET" action="{{ route('postes.index') }}" class="mb-6 flex items-center gap-4">
+    <label for="etat" class="text-sm text-gray-700 font-medium">Filtrer par état :</label>
+    <select name="etat" id="etat" onchange="this.form.submit()" class="border-gray-300 rounded-md shadow-sm">
+        <option value="">Tous</option>
+        <option value="actif" {{ request('etat') === 'actif' ? 'selected' : '' }}>✅ Actif</option>
+        <option value="hors_service" {{ request('etat') === 'hors_service' ? 'selected' : '' }}>⚠️ Hors service</option>
+        <option value="en_attente" {{ request('etat') === 'en_attente' ? 'selected' : '' }}>⏳ En attente</option>
+        <option value="archived_hors_service" {{ request('etat') === 'archived_hors_service' ? 'selected' : '' }}>📦 Hors service (Archivé)</option>
+
+    </select>
+</form>
 
     <div class="bg-white rounded-lg shadow mb-8">
         <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
@@ -69,20 +71,23 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-sm">
-                                <span class="px-2 py-1 rounded text-xs font-semibold
-                                    @switch($poste->etat)
-                                        @case('actif') bg-green-100 text-green-800 @break
-                                        @case('hors_service') bg-red-100 text-red-800 @break
-                                        @case('en_attente') bg-yellow-100 text-yellow-800 @break
-                                        @default bg-gray-100 text-gray-800
-                                    @endswitch">
-                                    @switch($poste->etat)
-                                        @case('actif') ✅ Actif @break
-                                        @case('hors_service') ⚠️ Hors service @break
-                                        @case('en_attente') ⏳ En attente @break
-                                        @default — @break
-                                    @endswitch
-                                </span>
+                              <span class="px-2 py-1 rounded text-xs font-semibold
+    @switch($poste->etat)
+        @case('actif') bg-green-100 text-green-800 @break
+        @case('hors_service') bg-red-100 text-red-800 @break
+        @case('en_attente') bg-yellow-100 text-yellow-800 @break
+        @default bg-gray-100 text-gray-800
+    @endswitch">
+    @switch($poste->etat)
+        @case('actif') ✅ Actif @break
+        @case('hors_service') ⚠️ Hors service @break
+        @case('en_attente') ⏳ En attente @break
+        @default — @break
+    @endswitch
+    @if($poste->archive)
+        <span class="text-gray-500 font-normal">(Archivé)</span>
+    @endif
+</span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <div class="flex items-center gap-4">
@@ -102,14 +107,14 @@
                                     </span>
 
                                     {{-- Migration --}}
-                                    @if($poste->etat === 'hors_service')
-                                        <a href="{{ route('client.migration.form', ['source_poste_id' => $poste->id]) }}"
-                                           class="text-indigo-600 hover:text-indigo-900 flex items-center gap-1"
-                                           title="Migrer les clients">
-                                            <i class="fas fa-share"></i>
-                                            <span class="hidden md:inline">Migrer</span>
-                                        </a>
-                                    @endif
+                                    @if($poste->etat === 'hors_service' && !$poste->archive)
+    <a href="{{ route('client.migration.form', ['source_poste_id' => $poste->id]) }}"
+       class="text-indigo-600 hover:text-indigo-900 flex items-center gap-1"
+       title="Migrer les clients">
+        <i class="fas fa-share"></i>
+        <span class="hidden md:inline">Migrer</span>
+    </a>
+@endif
 
                                     {{-- Signaler une panne --}}
                                     @if($poste->etat === 'actif')

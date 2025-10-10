@@ -26,14 +26,19 @@
 
         {{-- Code du poste --}}
         <div>
-            <label for="code_poste" class="block font-medium">Code du poste (généré automatiquement)</label>
-            <input type="text" id="code_poste" value="sera généré automatiquement" readonly
-                   class="w-full border rounded px-3 py-2 bg-gray-100 text-gray-500">
+            <label class="block font-medium">
+                Code du poste <span class="text-red-600">*</span>
+                <span class="text-gray-500 text-sm">(généré automatiquement)</span>
+            </label>
+            <input type="text" value="{{ $codePoste ?? 'sera généré automatiquement' }}" readonly
+                   class="w-full border rounded px-3 py-2 bg-gray-100 text-gray-800 font-semibold">
         </div>
 
         {{-- Agence --}}
         <div>
-            <label for="agence_id" class="block font-medium">Agence</label>
+            <label for="agence_id" class="block font-medium">
+                Agence <span class="text-red-600">*</span>
+            </label>
             <select name="agence_id" id="agence_id" class="w-full border rounded px-3 py-2" required>
                 <option value="">-- Sélectionner une agence --</option>
                 @foreach($agences as $agence)
@@ -44,7 +49,9 @@
 
         {{-- Zones (plusieurs) --}}
         <div>
-            <label for="zone_id" class="block font-medium">Zones associées</label>
+            <label for="zone_id" class="block font-medium">
+                Zones associées <span class="text-red-600">*</span>
+            </label>
             <select name="zone_id[]" id="zone_id" multiple required
                     class="w-full border rounded px-3 py-2">
                 <option value="">-- Sélectionner une ou plusieurs zones --</option>
@@ -55,6 +62,8 @@
         <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
             Enregistrer le poste
         </button>
+
+        <p class="text-sm text-gray-500 mt-2"><span class="text-red-600">*</span> Champs obligatoires</p>
     </form>
 </div>
 

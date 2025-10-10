@@ -13,25 +13,20 @@ class ClientMigrationController extends Controller
      */
     public function form($source_poste_id)
     {
-        // Récupère le poste source ou lance 404 si introuvable
         $sourcePoste = Poste::findOrFail($source_poste_id);
 
-        // Vérifie que le poste source est bien hors service
         if ($sourcePoste->etat === 'actif') {
             return redirect()->route('postes.index')
                              ->with('error', 'Ce poste est encore actif. La migration est réservée aux postes hors service.');
         }
 
-        // Récupère tous les clients du poste source
         $clients = Client::where('poste_id', $source_poste_id)->get();
 
-        // Liste des postes actifs ou en attente disponibles pour la migration
         $postesCibles = Poste::whereIn('etat', ['actif', 'en_attente'])
                              ->where('id', '!=', $source_poste_id)
                              ->with('zones')
                              ->get();
 
-        // Passe les bonnes variables à la vue
         return view('client.migration', [
             'sourcePoste' => $sourcePoste,
             'clients' => $clients,
@@ -51,31 +46,46 @@ class ClientMigrationController extends Controller
         $sourcePoste = Poste::findOrFail($source_poste_id);
         $destinationPoste = Poste::with('zones')->findOrFail($request->destination_poste_id);
 
-        // Vérifie que le poste source est hors service
         if ($sourcePoste->etat === 'actif') {
             return redirect()->route('postes.index')
                              ->with('error', 'Le poste source est encore actif. Migration annulée.');
         }
 
-        // Vérifie que le poste destination est actif ou en attente
         if (!in_array($destinationPoste->etat, ['actif', 'en_attente'])) {
             return redirect()->back()
                              ->with('error', 'Le poste de destination doit être actif ou en attente.');
         }
 
-        // Récupère la première zone du poste destination
         $zone = $destinationPoste->zones->first();
-
-        // Migration des clients
         $clientsMigrés = 0;
+
         Client::where('poste_id', $source_poste_id)->get()->each(function ($client) use ($destinationPoste, $zone, &$clientsMigrés) {
             $client->poste_id = $destinationPoste->id;
             $client->zone_id = $zone?->id;
+
+            if ($destinationPoste->etat === 'en_attente') {
+                $client->etat = 'actif';
+            }
+
             $client->save();
             $clientsMigrés++;
         });
 
+        // ✅ Activation automatique du poste destination
+        if ($clientsMigrés > 0 && $destinationPoste->etat === 'en_attente') {
+            Poste::where('id', $destinationPoste->id)->update(['etat' => 'actif']);
+            $destinationPoste = Poste::find($destinationPoste->id); // recharge
+        }
+
+        // ✅ Archivage automatique du poste source s’il est vidé
+        if (Client::where('poste_id', $sourcePoste->id)->count() === 0) {
+            Poste::where('id', $sourcePoste->id)->update(['archive' => true]);
+            $sourcePoste = Poste::find($sourcePoste->id); // recharge
+        }
+
         return redirect()->route('postes.index')
-                         ->with('success', $clientsMigrés . ' client(s) migré(s) vers le poste "' . $destinationPoste->code_poste . '".');
+                         ->with('success', $clientsMigrés . ' client(s) migré(s) vers le poste "' . $destinationPoste->code_poste . '".' .
+                             ($destinationPoste->etat === 'actif' ? ' Le poste de destination a été activé.' : '') .
+                             ($sourcePoste->archive ? ' Le poste source a été archivé.' : ''));
     }
 }

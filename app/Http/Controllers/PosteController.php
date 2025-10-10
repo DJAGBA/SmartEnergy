@@ -10,17 +10,32 @@ use App\Models\Agence;
 
 class PosteController extends Controller
 {
-    public function index(Request $request)
-    {
-        $query = Poste::with(['zones.agence'])->orderBy('created_at', 'desc');
+  public function index(Request $request)
+{
+    $query = Poste::with(['agence', 'zones.agence'])->orderBy('created_at', 'desc');
 
-        if ($request->filled('etat')) {
-            $query->where('etat', $request->etat);
+    if ($request->filled('etat')) {
+        switch ($request->etat) {
+            case 'archived_actif':
+                $query->where('etat', 'actif')->where('archive', true);
+                break;
+            case 'archived_hors_service':
+                $query->where('etat', 'hors_service')->where('archive', true);
+                break;
+            case 'archived_en_attente':
+                $query->where('etat', 'en_attente')->where('archive', true);
+                break;
+            case 'actif':
+            case 'hors_service':
+            case 'en_attente':
+                $query->where('etat', $request->etat)->where('archive', false);
+                break;
         }
-
-        $postes = $query->paginate(10);
-        return view('postes.index', compact('postes'));
     }
+
+    $postes = $query->paginate(10);
+    return view('postes.index', compact('postes'));
+}
 
     public function create()
     {

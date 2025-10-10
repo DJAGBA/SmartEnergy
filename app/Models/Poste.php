@@ -44,4 +44,9 @@ class Poste extends Model
     {
         return $this->first_zone?->agence;
     }
+    public function agence()
+{
+    return $this->belongsTo(Agence::class);
+}
+
 }

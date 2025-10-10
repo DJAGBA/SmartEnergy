@@ -14,7 +14,7 @@ class Client extends Model
 {
     use HasFactory, Notifiable; // ← ajoute Notifiable
 
-    protected $fillable = ['nom', 'reference', 'email', 'telephone', 'agence_id', 'poste_id', 'canal_preferé'];
+    protected $fillable = ['nom', 'reference', 'email', 'telephone', 'agence_id', 'poste_id', 'canal_preferé','etat', ];
 
     public function agence()
     {
