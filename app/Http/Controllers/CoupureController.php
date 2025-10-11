@@ -327,16 +327,4 @@ public function impact()
     ));
 }
 
-public function publicWeb()
-{
-    $coupures = Coupure::where('etat', 'planifiee')
-        ->where('date_debut', '>=', Carbon::today())
-        ->with('zone')
-        ->orderBy('date_debut', 'asc')
-        ->get();
-
-    return view('portail.coupures', compact('coupures'));
-}
-
-
 }

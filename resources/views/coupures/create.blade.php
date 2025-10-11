@@ -9,7 +9,9 @@
 
         {{-- Date et heure de début --}}
         <div>
-            <label for="date_debut" class="block font-semibold text-gray-700">Date et heure de début</label>
+            <label for="date_debut" class="block font-semibold text-gray-700">
+                Date et heure de début <span class="text-red-600">*</span>
+            </label>
             <input type="datetime-local" name="date_debut" id="date_debut"
                    min="{{ now()->format('Y-m-d\TH:i') }}"
                    required class="form-input w-full mt-1">
@@ -17,7 +19,9 @@
 
         {{-- Date et heure de fin --}}
         <div>
-            <label for="date_fin" class="block font-semibold text-gray-700">Date et heure de fin</label>
+            <label for="date_fin" class="block font-semibold text-gray-700">
+                Date et heure de fin <span class="text-red-600">*</span>
+            </label>
             <input type="datetime-local" name="date_fin" id="date_fin"
                    min="{{ now()->format('Y-m-d\TH:i') }}"
                    required class="form-input w-full mt-1">
@@ -25,7 +29,9 @@
 
         {{-- Zone concernée --}}
         <div>
-            <label for="zone_id" class="block font-semibold text-gray-700">Zone concernée</label>
+            <label for="zone_id" class="block font-semibold text-gray-700">
+                Zone concernée <span class="text-red-600">*</span>
+            </label>
             <select name="zone_id" id="zone_id" required class="form-select w-full mt-1">
                 <option value="">-- Sélectionner une zone --</option>
                 @foreach($zones as $zone)
@@ -36,19 +42,25 @@
 
         {{-- Postes liés à la zone --}}
         <div id="postes-container" class="hidden">
-            <label class="block font-semibold text-gray-700 mb-2">Postes concernés</label>
+            <label class="block font-semibold text-gray-700 mb-2">
+                Postes concernés (sélection facultative)
+            </label>
             <div id="postes-list" class="space-y-4"></div>
         </div>
 
         {{-- Motif --}}
         <div>
-            <label for="motif" class="block font-semibold text-gray-700">Motif</label>
+            <label for="motif" class="block font-semibold text-gray-700">
+                Motif <span class="text-red-600">*</span>
+            </label>
             <textarea name="motif" id="motif" rows="3" required class="form-textarea w-full mt-1"></textarea>
         </div>
 
         {{-- Priorité --}}
         <div>
-            <label for="priorite" class="block font-semibold text-gray-700">Niveau de priorité</label>
+            <label for="priorite" class="block font-semibold text-gray-700">
+                Niveau de priorité <span class="text-red-600">*</span>
+            </label>
             <select name="priorite" id="priorite" required class="form-select w-full mt-1">
                 <option value="faible">Faible</option>
                 <option value="moyenne">Moyenne</option>
@@ -90,36 +102,50 @@ document.getElementById('zone_id').addEventListener('change', function () {
                     wrapper.classList.add('bg-gray-50', 'p-3', 'rounded', 'border', 'border-gray-200');
 
                     const posteLabel = document.createElement('label');
-                    posteLabel.classList.add('block', 'font-semibold', 'text-gray-700');
-                    posteLabel.textContent = poste.code_poste;
+                    posteLabel.classList.add('block', 'font-semibold', 'text-gray-700', 'mb-2');
+                    posteLabel.innerHTML = `${poste.code_poste}`;
 
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.name = 'postes[]';
-                    checkbox.value = poste.id;
-                    checkbox.classList.add('mr-2');
+                    const radioGroup = document.createElement('div');
+                    radioGroup.classList.add('flex', 'items-center', 'gap-6');
 
-                    const signalerCheckbox = document.createElement('input');
-                    signalerCheckbox.type = 'checkbox';
-                    signalerCheckbox.name = `signaler[${poste.id}]`;
-                    signalerCheckbox.value = 1;
-                    signalerCheckbox.classList.add('ml-4', 'form-checkbox', 'text-red-600');
+                    const inclureWrapper = document.createElement('label');
+                    inclureWrapper.classList.add('flex', 'items-center', 'gap-2');
+                    const inclureRadio = document.createElement('input');
+                    inclureRadio.type = 'radio';
+                    inclureRadio.name = `choix[${poste.id}]`;
+                    inclureRadio.value = 'inclure';
+                    inclureRadio.classList.add('form-radio', 'text-indigo-600');
+                    inclureWrapper.appendChild(inclureRadio);
+                    inclureWrapper.appendChild(document.createTextNode('Inclure dans la coupure'));
 
-                    const signalerLabel = document.createElement('span');
-                    signalerLabel.textContent = 'Signaler comme problématique';
-                    signalerLabel.classList.add('ml-2', 'text-sm', 'text-red-700');
+                    const signalerWrapper = document.createElement('label');
+                    signalerWrapper.classList.add('flex', 'items-center', 'gap-2');
+                    const signalerRadio = document.createElement('input');
+                    signalerRadio.type = 'radio';
+                    signalerRadio.name = `choix[${poste.id}]`;
+                    signalerRadio.value = 'signaler';
+                    signalerRadio.classList.add('form-radio', 'text-red-600');
+                    signalerWrapper.appendChild(signalerRadio);
+                    signalerWrapper.appendChild(document.createTextNode('Signaler comme problématique'));
+
+                    radioGroup.appendChild(inclureWrapper);
+                    radioGroup.appendChild(signalerWrapper);
 
                     const messageInput = document.createElement('textarea');
                     messageInput.name = `message[${poste.id}]`;
                     messageInput.rows = 2;
                     messageInput.placeholder = 'Message de signalement...';
-                    messageInput.classList.add('form-textarea', 'mt-2', 'w-full');
+                    messageInput.classList.add('form-textarea', 'mt-2', 'w-full', 'hidden');
+
+                    signalerRadio.addEventListener('change', () => {
+                        messageInput.classList.remove('hidden');
+                    });
+                    inclureRadio.addEventListener('change', () => {
+                        messageInput.classList.add('hidden');
+                    });
 
                     wrapper.appendChild(posteLabel);
-                    wrapper.appendChild(checkbox);
-                    wrapper.appendChild(document.createTextNode('Inclure dans la coupure'));
-                    wrapper.appendChild(signalerCheckbox);
-                    wrapper.appendChild(signalerLabel);
+                    wrapper.appendChild(radioGroup);
                     wrapper.appendChild(messageInput);
 
                     list.appendChild(wrapper);

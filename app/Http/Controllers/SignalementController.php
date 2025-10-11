@@ -2,29 +2,47 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Poste;
+use App\Models\Signalement;
 use App\Models\User;
-use App\Notifications\PosteProblemeNotification;
+use App\Notifications\PanneSignaléeNotification;
+use Illuminate\Http\Request;
 
-public function  store(Request $request)
+class SignalementController extends Controller
 {
-    $validated = $request->validate([
-        'poste_id' => 'required|exists:postes,id',
-        'message' => 'nullable|string|max:1000',
-    ]);
+    /**
+     * Enregistre un signalement et notifie les techniciens.
+     */
+    public function store(Request $request)
+    {
+        // Validation des données du formulaire
+        $validated = $request->validate([
+            'poste_id' => 'required|exists:postes,id',
+            'message' => 'nullable|string|max:1000',
+        ]);
 
-    $signalement = Signalement::create([
-        'poste_id' => $validated['poste_id'],
-        'gestionnaire_id' => auth()->id(),
-        'message' => $validated['message'],
-        'etat' => 'non_traite',
-    ]);
+        // Récupération du poste concerné
+        $poste = Poste::findOrFail($validated['poste_id']);
 
-    // Exemple : notifier tous les techniciens
-    $techniciens = User::where('role', 'technicien')->get();
+        // Création du signalement
+        $signalement = Signalement::create([
+            'poste_id' => $poste->id,
+            'gestionnaire_id' => auth()->id(),
+            'message' => $validated['message'],
+            'etat' => 'non_traite',
+        ]);
 
-    foreach ($techniciens as $tech) {
-        $tech->notify(new PosteProblemeNotification("Poste {$signalement->poste->code} signalé comme problématique."));
+        // Récupération des techniciens
+        $techniciens = User::where('role', 'technicien')->get();
+
+        // Notification à chaque technicien
+        foreach ($techniciens as $tech) {
+            $tech->notify(new PanneSignaléeNotification(
+                "Le poste {$poste->code_poste} a été signalé comme problématique. Message : {$validated['message']}",
+                $poste->id
+            ));
+        }
+
+        return back()->with('success', 'Les techniciens ont été informés.');
     }
-
-    return back()->with('success', 'Le technicien a été informé.');
 }
