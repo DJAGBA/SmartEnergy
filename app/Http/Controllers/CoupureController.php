@@ -15,6 +15,13 @@ use App\Models\Poste;
 use App\Models\Agence;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use App\Models\Signalement;
+use App\Notifications\PanneSignaléeNotification;
+use App\Models\User;
+use App\Models\Client;
+
+
+
 
 
 
@@ -38,7 +45,7 @@ class CoupureController extends Controller
     
 
     // Enregistre une nouvelle coupure
-    public function store(Request $request)
+   public function store(Request $request)
 {
     $validated = $request->validate([
         'date_debut' => 'required|date|after_or_equal:today',
@@ -53,29 +60,48 @@ class CoupureController extends Controller
     $duree = $debut->diffInMinutes($fin);
     $gestionnaireId = auth()->id();
 
-   $coupure = Coupure::create([
-    'date_debut' => $debut,
-    'date_fin' => $fin,
-    'duree_prevue' => $duree,
-    'motif' => $validated['motif'],
-    'priorite' => $validated['priorite'],
-    'zone_id' => $validated['zone_id'],
-    'etat' => 'planifiee',
-    'gestionnaire_id' => $gestionnaireId,
-]);
+    // ✅ Création de la coupure
+    $coupure = Coupure::create([
+        'date_debut' => $debut,
+        'date_fin' => $fin,
+        'duree_prevue' => $duree,
+        'motif' => $validated['motif'],
+        'priorite' => $validated['priorite'],
+        'zone_id' => $validated['zone_id'],
+        'etat' => 'planifiee',
+        'gestionnaire_id' => $gestionnaireId,
+    ]);
 
-// Notification Laravel vers le gestionnaire
-// Notification::send(auth()->user(), new CoupurePlanifieeNotification($coupure));
+    // ✅ Traitement des postes signalés
+    foreach ($request->input('choix', []) as $posteId => $choix) {
+        if ($choix === 'signaler') {
+            $message = $request->input("message.$posteId");
 
-// 🔽 Ajoute ce bloc juste ici
-$client = \App\Models\Client::where('email', 'veroniquedjagba@gmail.com')->first();
+            $signalement = Signalement::create([
+                'coupure_id' => $coupure->id,
+                'poste_id' => $posteId,
+                'gestionnaire_id' => $gestionnaireId,
+                'message' => $message,
+                'etat' => 'non traité',
+            ]);
 
-if ($client && filter_var($client->email, FILTER_VALIDATE_EMAIL)) {
-    \Mail::send('emails.coupure', ['coupure' => $coupure, 'client' => $client], function ($message) use ($client) {
-        $message->to($client->email)
-                ->subject('📢 Coupure planifiée – CEET');
-    });
-}
+            // ✅ Notification aux techniciens
+            $techniciens = User::role('technicien')->get();
+            foreach ($techniciens as $technicien) {
+                $technicien->notify(new PanneSignaléeNotification($signalement->poste, $message));
+            }
+        }
+    }
+
+    // ✅ Envoi d’un email au client concerné
+    $client = Client::where('email', 'veroniquedjagba@gmail.com')->first();
+
+    if ($client && filter_var($client->email, FILTER_VALIDATE_EMAIL)) {
+        Mail::send('emails.coupure', ['coupure' => $coupure, 'client' => $client], function ($message) use ($client) {
+            $message->to($client->email)
+                    ->subject('📢 Coupure planifiée – CEET');
+        });
+    }
 
     return redirect()->route('coupures.index')->with('success', 'Coupure planifiée avec succès.');
 }

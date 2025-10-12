@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 class Signalement extends Model
 {
     protected $fillable = [
-        'poste_id',
-        'gestionnaire_id',
-        'message',
-        'etat',
+        'coupure_id',
+    'poste_id',
+    'gestionnaire_id',
+    'message',
+    'etat',
+
     ];
 
     public function poste()
@@ -22,4 +24,10 @@ class Signalement extends Model
     {
         return $this->belongsTo(User::class, 'gestionnaire_id');
     }
+
+    public function coupure()
+{
+    return $this->belongsTo(Coupure::class);
+}
+
 }

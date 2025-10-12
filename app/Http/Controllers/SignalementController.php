@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Poste;
 use App\Models\Signalement;
 use App\Models\User;
-use App\Notifications\PanneSignaléeNotification;
+use App\Models\CustomDatabaseNotification;
 use Illuminate\Http\Request;
 
 class SignalementController extends Controller
@@ -35,12 +35,23 @@ class SignalementController extends Controller
         // Récupération des techniciens
         $techniciens = User::where('role', 'technicien')->get();
 
-        // Notification à chaque technicien
+        // Notification manuelle à chaque technicien (sans UUID)
         foreach ($techniciens as $tech) {
-            $tech->notify(new PanneSignaléeNotification(
-                "Le poste {$poste->code_poste} a été signalé comme problématique. Message : {$validated['message']}",
-                $poste->id
-            ));
+           CustomDatabaseNotification::create([
+    'notifiable_id' => $tech->id,
+    'notifiable_type' => get_class($tech),
+    'type' => \App\Notifications\PanneSignaléeNotification::class,
+    'data' => [
+        'code_poste' => $poste->code_poste,
+        // 'zone' => $poste->zone->nom ?? 'Zone inconnue', ← supprime cette ligne
+        'message' => $validated['message'],
+        'url' => route('postes.show', $poste->id),
+        'signalé_par' => 'Gestionnaire',
+        'created_at' => now(),
+    ],
+    'created_at' => now(),
+    'updated_at' => now(),
+]);
         }
 
         return back()->with('success', 'Les techniciens ont été informés.');

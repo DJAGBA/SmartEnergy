@@ -492,7 +492,7 @@
 </form>
         </section>
 
-        <section class="section" id="alertes">
+        <!-- <section class="section" id="alertes">
             <h2 class="section-title"><i class="fas fa-bell"></i> S'abonner aux alertes</h2>
             <p class="text-gray-700 mb-4">Entrez votre **référence client** pour vérifier vos informations et choisir votre canal de communication préféré (SMS ou E-mail).</p>
 
@@ -534,7 +534,7 @@
                     </div>
                 </div>
             </div>
-        </section>
+        </section> -->
 
         {{-- Définissez cette variable dans votre contrôleur Laravel pour contrôler l'accès --}}
         @php 
@@ -542,7 +542,7 @@
             $isAlertSubscriber = false; 
         @endphp 
 
-        <section class="section @if(!$isAlertSubscriber) section-disabled @endif" id="avis">
+        <!-- <section class="section @if(!$isAlertSubscriber) section-disabled @endif" id="avis">
             <h2 class="section-title"><i class="fas fa-comment-dots"></i> Donner mon avis après une coupure</h2>
             <p class="text-gray-600 mb-4">Votre avis nous aide à améliorer la qualité du service. Merci de nous indiquer les détails de la coupure que vous avez vécue.</p>
             
@@ -586,7 +586,7 @@
             <div class="form-actions">
                 <button class="btn"><i class="fas fa-paper-plane"></i> Envoyer mon avis</button>
             </div>
-        </section>
+        </section> -->
 
     </main>
 

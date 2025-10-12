@@ -12,7 +12,7 @@ class Notification extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['client_id', 'coupure_id', 'type', 'envoyée', 'date_envoi'];
+    protected $fillable = ['client_id', 'coupure_id', 'type', 'envoyée', 'date_envoi', 'data', 'read_at', 'notifiable_id', 'notifiable_type'];
 
     public function client()
     {
@@ -23,4 +23,7 @@ class Notification extends Model
     {
         return $this->belongsTo(Coupure::class);
     }
+protected $keyType = 'string';
+public $incrementing = false;
+
 }
