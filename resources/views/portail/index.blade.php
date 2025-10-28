@@ -473,24 +473,24 @@
     </div>
 </section>
 <section class="section" id="services">
-            <h2 class="section-title"><i class="fas fa-search"></i> Rechercher une coupure</h2>
-            <p>Besoin de vérifier une coupure ? Entrez simplement votre **référence client** ou l’adresse concernée pour obtenir les informations en un clin d’œil.</p>
+            <!-- <h2 class="section-title"><i class="fas fa-search"></i> Rechercher une coupure</h2>
+            <p>Besoin de vérifier une coupure ? Entrez simplement votre **référence client** pour obtenir les informations en un clin d’œil.</p>
 <form method="GET" action="{{ route('coupures.recherche') }}">
     <div class="form-grid">
         <div class="form-group">
             <label class="form-label">Référence client</label>
             <input type="text" name="reference" class="form-input" placeholder="Ex: 12345678">
-        </div>
-        <div class="form-group">
+        </div> -->
+        <!-- <div class="form-group">
             <label class="form-label">Adresse</label>
             <input type="text" name="adresse" class="form-input" placeholder="Ex: Tokoin Gbonvié">
-        </div>
-    </div>
+        </div> -->
+    <!-- </div>
     <div class="form-actions">
         <button type="submit" class="btn"><i class="fas fa-search"></i> Rechercher</button>
     </div>
 </form>
-        </section>
+        </section> -->
 
         <!-- <section class="section" id="alertes">
             <h2 class="section-title"><i class="fas fa-bell"></i> S'abonner aux alertes</h2>
